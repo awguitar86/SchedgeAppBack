@@ -7,15 +7,19 @@ exports.postCsv = (req, res, next) => {
     return res.status(200).json({message: 'No file provided!'})
   }
   if (req.body.oldPath) {
-    console.log(req.body.oldPath)
     clearImage(req.body.oldPath);
   }
+  console.log(req)
   csv()
     .fromFile(req.file.path)
     .then(jsonObj => {
       console.log(jsonObj)
-      res.send(jsonObj)
+      return res.send(jsonObj)
     })
+    .then(result => {
+      clearImage(req.file.path);
+    })
+    .catch(err => console.log(err))
   // return res
   //   .status(201)
   //   .json({ message: 'File stored.', filePath: req.file.path });
