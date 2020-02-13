@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const cors = require('cors')
 const port = 8080;
 
 const calendarRoutes = require('./routes/calendar')
@@ -35,12 +36,7 @@ app.use( multer({
 );
 app.use('/csvFiles', express.static(path.join(__dirname, 'csvFiles')));
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  next();
-});
+app.use(cors());
 
 app.use('/calendar', calendarRoutes)
 
