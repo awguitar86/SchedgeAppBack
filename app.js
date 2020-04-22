@@ -9,13 +9,15 @@ const calendarRoutes = require('./routes/calendar');
 
 const app = express();
 
+app.use(cors());
+
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'csvFiles');
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
-  }
+  },
 });
 
 const fileFilter = (req, file, cb) => {
@@ -30,12 +32,10 @@ app.use(bodyParser.json()); // application/json
 app.use(
   multer({
     storage: fileStorage,
-    fileFilter: fileFilter
+    fileFilter: fileFilter,
   }).single('csvfile')
 );
 app.use('/csvFiles', express.static(path.join(__dirname, 'csvFiles')));
-
-app.use(cors());
 
 app.use('/calendar', calendarRoutes);
 
