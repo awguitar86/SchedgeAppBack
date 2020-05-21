@@ -3,6 +3,7 @@ const fs = require('fs')
 const csv = require('csvtojson')
 
 exports.postCsv = (req, res, next) => {
+  console.log(req.file);
   if(!req.file) {
     return res.status(200).json({message: 'No file provided!'})
   }
@@ -10,8 +11,9 @@ exports.postCsv = (req, res, next) => {
     clearImage(req.body.oldPath);
   }
   console.log(req)
+  const csvFilePath = req.file.path.includes("\\") ? req.file.path.replace("\\", "/") : req.file.path;
   csv()
-    .fromFile(req.file.path)
+    .fromFile(csvFilePath)
     .then(jsonObj => {
       console.log(jsonObj)
       return res.send(jsonObj)
