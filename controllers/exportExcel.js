@@ -66,27 +66,28 @@ let charCode = 65;  //Start with ascii 'A' for labeling calendar items
 let scheduleEntryRow=1;
 
 exports.postExcel = (req, res, next) => {
-  const classData = JSON.parse(req.body.displaydata);
+  const classData = JSON.parse(req.body.displaydata); //Data provided by the front end
   
-  let workBook = new xl.Workbook();
-  let calendarWorkSheet = workBook.addWorksheet('Calendar');
-  let scheduleWorkSheet = workBook.addWorksheet('Schedule');
+  let workBook = new xl.Workbook(); //Create new workbook
+  let calendarWorkSheet = workBook.addWorksheet('Calendar');  //Create Calendar sheet
+  let scheduleWorkSheet = workBook.addWorksheet('Schedule');  //Create Schedule sheet
 
+  //Build Calendar spreadsheet
   buildCalendarHeading(calendarWorkSheet, workBook);
   buildCalendarLeftHeading(calendarWorkSheet, workBook);
   setCalendarCellSpacing(calendarWorkSheet, workBook);
   
   charCode = 65;  //Reset calendar item label counter
   scheduleEntryRow = 1; //Reset schdule entry row
+  //Add Schedule sheet class item headings
   buildScheduleHeading(scheduleWorkSheet, workBook);
 
   classData.map(item=>{
-    setCalendarItem(item, calendarWorkSheet, scheduleWorkSheet, workBook);
+    setCalendarItem(item, calendarWorkSheet, scheduleWorkSheet, workBook);  //Add row with class data
     return item;
   })
 
-  //TODO: Populate schedule
-
+  //Write excel file and send it back to the front end
   workBook.write('excelFiles/Excel.xlsx', function(err, stats) {
     if(err) {
       return res.status(500).json(err)
@@ -94,7 +95,6 @@ exports.postExcel = (req, res, next) => {
       return res.sendFile(path.join(__dirname, '../excelFiles/Excel.xlsx'));
     }
   });
-  // return res.status(200).json({ message: 'Export Excel hit successfully' })
 };
 
 function buildCalendarHeading(ws, wb) {
@@ -125,11 +125,13 @@ function buildCalendarHeading(ws, wb) {
   ws.cell(columnTitles, days['M'], columnTitles, days['S']).style(dayHeaderStyle);
 }
 
+//Returns row associated with a given time
 function timeToRow(hour, minute) {
   const calendarStartRow = 2;
   return parseInt( calendarStartRow+(hour-startTime24Hour)*cellsPerHour+(minute/5) );
 }
 
+//Converts 24 hour to 12 hour format for hours only
 function hour24ToHour12(hour) {
   let meridian = 'pm';
   if(hour<12)
@@ -179,6 +181,7 @@ function setCalendarCellSpacing(ws, wb) {
   }
 }
 
+//Returns JSON {hour, minute} with 24 hour time
 function convertTime(time12Hour) {
   const meridian = time12Hour.slice(-2);
   const numbers = time12Hour.slice(0,-2);
@@ -194,6 +197,7 @@ function convertTime(time12Hour) {
   return {hour, minute};
 }
 
+//returns meeting pattern as json with {days, startTime, endTime}
 function convertMeetingPattern(mtgPat) {
   let [days,timeSpan] = mtgPat.split(' ');
   days = days.replace('a', '').split('');
@@ -214,6 +218,7 @@ function generateShade(minHex, maxHex) {
   return value;
 }
 
+//returns RRGGBB color randomly generated
 function generateColor() {
   const r = generateShade('00', 'a0');
   const g = generateShade('00', 'a0');
@@ -243,22 +248,21 @@ function buildScheduleHeading(ws, wb) {
   scheduleEntryRow++;
 }
 
+//Sets scheduled items onto calendar
 function setCalendarItem(item, calendar_ws, schedule_ws, wb) {
-  let keyValueChar = String.fromCharCode(charCode); 
+  let keyValueChar = String.fromCharCode(charCode);   //Converts number representing ascii character to character
 
   Object.entries(item).forEach(([key, value])=>{
-    schedule_ws.cell(scheduleEntryRow,dataColumns[key].column).string(value)
+    schedule_ws.cell(scheduleEntryRow,dataColumns[key].column).string(value)  //Sets schedule item on schedule worksheet
   })
   
   if(item.meetingPattern==='Does Not Meet') {
     scheduleEntryRow++;  
     return; 
   }
-  schedule_ws.cell(scheduleEntryRow,dataColumns['key'].column).string(keyValueChar);
+  schedule_ws.cell(scheduleEntryRow,dataColumns['key'].column).string(keyValueChar);  //Set schedule key for item in schedule worksheet
   scheduleEntryRow++;
   
-  const generatedShade = generateShade();
-
   const calendarItemStyle = wb.createStyle({
     alignment: {
       horizontal: 'center',
@@ -271,14 +275,15 @@ function setCalendarItem(item, calendar_ws, schedule_ws, wb) {
     fill: {
       type: "pattern",
       patternType: "solid",
-      fgColor: generateColor()
+      fgColor: generateColor()  //Generate color to be used on calendar item
     }
   });
 
   console.log("ITEM:", item);
-  const meetingTime = convertMeetingPattern( item.meetingPattern );
+  const meetingTime = convertMeetingPattern( item.meetingPattern ); //Get meeting pattern as JSON
   
   meetingTime.days.map(day=>{
+    //Define cells representing calendar item
     calendar_ws.cell(
       timeToRow(meetingTime.startTime.hour, meetingTime.startTime.minute), 
       days[day], 
@@ -289,5 +294,5 @@ function setCalendarItem(item, calendar_ws, schedule_ws, wb) {
     .style(calendarItemStyle)
   });
 
-  charCode++;
+  charCode++; //Advance character key to the next letter
 }
