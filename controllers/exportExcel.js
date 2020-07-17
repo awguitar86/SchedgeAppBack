@@ -20,40 +20,48 @@ const days = {
 const dataColumns = {
   'key': {
     label: 'Key',
-    column: 1
-    //Todo: add code for column width
+    column: 1,
+    width: 4.0  //Multiply by 10 and it is the width in pixels
   },
   'courseTitle': {
     label: 'Course Title',
-    column: 2
+    column: 2,
+    width: 32.0
   },
   'instructor': {
     label: 'Instructor',
-    column: 3
+    column: 3,
+    width: 25.0
   },
   'meetingPattern': {
     label: 'Meeting Time(s)',
-    column: 4
+    column: 4,
+    width: 25.0
   },
   'location': {
     label: 'Location',
-    column: 5
+    column: 5,
+    width: 23.0
   },
   'block': {
     label: 'Block',
-    column: 6
+    column: 6,
+    width: 10.8
   },
   'creditHours': {
     label: 'Credit Hours',
-    column: 7
+    column: 7,
+    width: 10.8
   },
   'classId': {
     label: 'Class ID',
-    column: 8
+    column: 8,
+    width: 7.0
   },
   'course': {
     label: 'Course',
-    column: 9
+    column: 9,
+    width: 11.0
   }
 }
 
@@ -241,7 +249,8 @@ function buildScheduleHeading(ws, wb) {
     
   });
   Object.entries(dataColumns).forEach(([key,value])=>{
-    ws.cell(scheduleEntryRow,value.column)
+    ws.column(value.column).setWidth(value.width);
+    ws.cell(scheduleEntryRow,value.column)  //Add heading to column
       .string(value.label)
       .style(scheduleHeadingStyle);
   });
