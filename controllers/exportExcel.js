@@ -62,7 +62,34 @@ const dataColumns = {
     label: 'Course',
     column: 9,
     width: 11.0
-  }
+  },
+  'section': {
+    label: 'Section',
+    column: 10,
+    width: 7.0
+  },
+  'campus': {
+    label: 'Campus',
+    column: 11,
+    width: 7.0
+  },
+  'maxEnrollment': {
+    label: 'Max Enrollment',
+    column: 12,
+    width: 14.0
+  },
+  'maxWaitlistEnrollment': {
+    label: 'Max Waitlist Enrollment',
+    column: 13,
+    width: 14.0
+  },
+  'courseAttributes': {
+    label: 'Course Attributes',
+    column: 14,
+    width: 25.0
+  },
+
+  
 }
 
 const cellsPerHour = 12;
@@ -262,7 +289,8 @@ function setCalendarItem(item, calendar_ws, schedule_ws, wb) {
   let keyValueChar = String.fromCharCode(charCode);   //Converts number representing ascii character to character
 
   Object.entries(item).forEach(([key, value])=>{
-    schedule_ws.cell(scheduleEntryRow,dataColumns[key].column).string(value)  //Sets schedule item on schedule worksheet
+    if(dataColumns[key] !== undefined)
+      schedule_ws.cell(scheduleEntryRow,dataColumns[key].column).string(value)  //Sets schedule item on schedule worksheet
   })
   
   if(item.meetingPattern==='Does Not Meet') {
