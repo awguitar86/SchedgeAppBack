@@ -6,6 +6,7 @@ const cors = require('cors');
 const port = 8080;
 
 const calendarRoutes = require('./routes/calendar');
+const exportRoutes = require('./routes/export');
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use(
 app.use('/csvFiles', express.static(path.join(__dirname, 'csvFiles'))); // This is just getting the correct path to the 'csvfile' folder where we are storing the uploaded file.
 
 app.use('/calendar', calendarRoutes);
+app.use('/export', exportRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
